@@ -10,3 +10,4 @@ Steuerung von Fuchsjagdsendern für das Amateurfunkpeilen auf Basis von ESP8266-
     - Einstellbare Startzeit und Endezeit
     - Modus fuer Fuchsjagd, Foxoring, Sprint
     - Einstellbare Anzahl der Füchse, Sendezeit und Pausezeit
+    - Frequenz direkt über GPIO erzeugen: Fuchsfrequenz 3,579MHz, 3,550MHz, 3,600MHz, 3,650MHz
