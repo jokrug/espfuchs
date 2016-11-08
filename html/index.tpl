@@ -1,0 +1,89 @@
+<html>
+<head><title>EspFuchs</title>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+
+<script type="text/javascript">
+  var ajax = null;
+  
+    if(window.XMLHttpRequest){ //Google Chrome, Mozilla Firefox, Opera, Safari, IE 7
+      ajax = new XMLHttpRequest();
+    }
+    else if(window.ActiveXObject){ // Internet Explorer 6 und niedriger
+      try{
+        ajax = new ActiveXObject("Msxml2.XMLHTTP.6.0");
+      } catch(e){
+        try{
+          ajax = new ActiveXObject("Msxml2.XMLHTTP.3.0");
+        }
+        catch(e){}
+      }
+    }
+    if(ajax==null)
+      alert("Ihr Browser unterstützt kein Ajax!");
+  
+  function process(){
+    if((ajax!=null) && (ajax.readyState==0 || ajax.readyState==4)){
+      ajax.open('POST','/xml',true);
+      ajax.onreadystatechange=handleServerResponse;
+      ajax.send(null);
+    }
+    setTimeout('process()',1000);
+  }
+  
+  function handleServerResponse(){
+    if(ajax.readyState==4 && ajax.status==200 && ajax.responseXML!=null){
+      var currTime = ajax.responseXML.getElementsByTagName("curtime");
+      document.getElementById('curtime').innerHTML=currTime[0].textContent;
+      var startTime = ajax.responseXML.getElementsByTagName("starttime");
+      document.getElementById('starttime').innerHTML=startTime[0].textContent;
+      var stopTime = ajax.responseXML.getElementsByTagName("stoptime");
+      document.getElementById('stoptime').innerHTML=stopTime[0].textContent;
+      var battVb = ajax.responseXML.getElementsByTagName("battvb");
+      document.getElementById('battvb').innerHTML=battVb[0].textContent;
+    }
+  }
+</script>
+</head>
+<body onload="process()">
+<div id="main">
+<h2><img src="icons/ardf-online-logo.gif"> ESPFuchs %deviceNo%</h2>
+<p>
+<hr>
+<table>
+<tr><td>Frequenz:        </td> <td><div id="freq"></div></td> </tr>
+<tr><td>Aktuelle Uhrzeit:</td> <td><div id="curtime"></div></td> </tr>
+<tr><td>Startzeit:       </td> <td><div id="starttime"></div></td> </tr>
+<tr><td>Stopzeit:        </td> <td><div id="stoptime"></div></td> </tr>
+<tr><td>Batteriespannung:</td> <td><div id="battvb"></div>V</td> </tr>
+</table>
+<hr>
+
+<form action="/settime">
+  <table>
+<tr><td><label>neue Frequenz:</label></td> <td>
+    <select name="frequency_enum">
+      <option value="1">3478</option>
+      <option value="2">3555</option>
+      <option value="3">3636</option>
+      <option value="4">3400</option>
+      <option value="5">3431</option>
+      <option value="6">3462</option>
+      <option value="7">3491</option>
+      <option value="8">3519</option>
+      <option value="9">3545</option>
+      <option value="10">3571</option>
+      <option value="11">3597</option>
+      <option value="12">3621</option>
+      <option value="13">3644</option>
+    </select> kHz</td> </tr>
+    <tr><td><label>neue Uhrzeit:</label></td> <td> <input type="time" name="setcurrtime"></td> </tr>
+    <tr><td><label>neue Startzeit:</label></td> <td> <input type="time" name="setstarttime"></td> </tr>
+    <tr><td><label>neue Stopzeit:</label></td> <td> <input type="time" name="setstoptime"></td> </tr>
+  </table>
+  <button type="submit" height=12px name="submit">Daten &uuml;bernehmen</button>
+</form>
+
+</p>
+</div>
+</body></html>

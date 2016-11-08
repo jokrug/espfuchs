@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<SCRIPT>
+var xmlHttp=createXmlHttpObject();
+
+function createXmlHttpObject(){
+ if(window.XMLHttpRequest){
+    xmlHttp=new XMLHttpRequest();
+ }else{
+    xmlHttp=new ActiveXObject('Microsoft.XMLHTTP');
+ }
+ return xmlHttp;
+}
+
+function process(){
+ if(xmlHttp.readyState==0 || xmlHttp.readyState==4){
+   xmlHttp.open('PUT','xml',true);
+   xmlHttp.onreadystatechange=handleServerResponse; // no brackets?????
+   xmlHttp.send(null);
+ }
+ setTimeout('process()',1000);
+}
+ 
+function handleServerResponse(){
+ if(xmlHttp.readyState==4 && xmlHttp.status==200){
+   xmlResponse=xmlHttp.responseXML;
+   xmldoc = xmlResponse.getElementsByTagName('response');
+   message = xmldoc[0].firstChild.nodeValue;
+   document.getElementById('runtime').innerHTML=message;
+ }
+}
+</SCRIPT>
+ 
+<BODY onload='process()'>
+<BR>This is the ESP website ...<BR>
+Runtime = <A id='runtime'></A>
+</BODY>
+</HTML>
+
+  
+void buildXML(){
+  XML="<?xml version='1.0'?>";
+  XML+="<response>";
+  XML+=millis2time();
+  XML+="</response>";
+}
+
+String millis2time(){
+  String Time="";
+  unsigned long ss;
+  byte mm,hh;
+  ss=millis()/1000;
+  hh=ss/3600;
+  mm=(ss-hh*3600)/60;
+  ss=(ss-hh*3600)-mm*60;
+  if(hh<10)Time+="0";
+  Time+=(String)hh+":";
+  if(mm<10)Time+="0";
+  Time+=(String)mm+":";
+  if(ss<10)Time+="0";
+  Time+=(String)ss;
+  return Time;
+}
+
+void handleWebsite(){
+  buildWebsite();
+  server.send(200,"text/html",webSite);
+}
+
+void handleXML(){
+  buildXML();
+  server.send(200,"text/xml",XML);
+}
+
+void setup() {
+  Serial.begin(115200); 
+  WiFi.begin(ssid,password);
+  while(WiFi.status()!=WL_CONNECTED)delay(500);
+  WiFi.mode(WIFI_STA);
+  Serial.println("\n\nBOOTING ESP8266 ...");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("Station IP address: ");
+  Serial.println(WiFi.localIP());
+  server.on("/",handleWebsite);
+  server.on("/xml",handleXML);
+  server.begin(); 
+}
+
+void loop() {
+  server.handleClient();
+}
