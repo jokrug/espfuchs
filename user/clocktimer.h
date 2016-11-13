@@ -38,7 +38,7 @@ void setTime(struct tm* newTime);
 int atoint(char **str);
 bool   strToStructTm(char* str, struct tm* tmBuf);
 time_t strToTime_t(char* str);
-bool   time_tToStructTm(time_t tt, struct tm* tmBuf);
+void   time_tToStructTm(time_t tt, struct tm* tmBuf);
 void   time_tToString(time_t tt, char* buf);
 
 #endif /* APP_SYSTEMCLOCK_H_ */

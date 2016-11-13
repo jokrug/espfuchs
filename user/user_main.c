@@ -38,6 +38,15 @@ some pictures of cats.
 
 #ifdef SHOW_HEAP_USE
 static ETSTimer prHeapTimer;
+static const char* espfuchs_version="v0.01";
+static char* rst_codes[7] = {
+  "normal", "wdt reset", "exception", "soft wdt", "restart", "deep sleep", "external",
+};
+
+static char* flash_maps[7] = {
+  "512KB:256/256", "256KB", "1MB:512/512", "2MB:512/512", "4MB:512/512",
+  "2MB:1024/1024", "4MB:1024/1024"
+};
 
 static void ICACHE_FLASH_ATTR prHeapTimerCb(void *arg) {
     os_printf("Heap: %ld\n", (unsigned long)system_get_free_heap_size());
@@ -45,11 +54,45 @@ static void ICACHE_FLASH_ATTR prHeapTimerCb(void *arg) {
 }
 #endif
 
+//You must provide:
+//Critical should not lock interrupts, just disable services that have problems
+//with double-interrupt faults.  I.e. turn off/on any really fast timer interrupts.
+//These generally only get called when doing serious operations like reflashing.
+void EnterCritical()
+{
+
+}
+
+void ExitCritical()
+{
+
+}
+
+void ICACHE_FLASH_ATTR print_reset_info(void)
+{
+    struct rst_info *rst_info = system_get_rst_info();
+    os_printf("Reset cause: %d=%s", rst_info->reason, rst_codes[rst_info->reason]);
+    os_printf("exccause=%d epc1=0x%x epc2=0x%x epc3=0x%x excvaddr=0x%x depc=0x%x\n",
+      rst_info->exccause, rst_info->epc1, rst_info->epc2, rst_info->epc3,
+      rst_info->excvaddr, rst_info->depc);
+    uint32_t fid = spi_flash_get_id();
+    os_printf("Flash map %s, manuf 0x%02lX chip 0x%04lX", flash_maps[system_get_flash_size_map()],
+        fid & 0xff, (fid&0xff00)|((fid>>16)&0xff));
+    os_printf("** %s: ready, heap=%ld", espfuchs_version, (unsigned long)system_get_free_heap_size());
+}
+
 //Main routine. Initialize stdout, the I/O, filesystem and the webserver and we're done.
 void user_init(void) {
 
-  configRestore();
   stdoutInit();
+  // Say hello (leave some time to cause break in TX after boot loader's msg
+  os_delay_us(10000L);
+
+  print_reset_info();
+
+  configRestore();
+  configToString();
+
   ioInit();
   captdnsInit();
 
@@ -93,3 +136,4 @@ void ICACHE_FLASH_ATTR user_set_softap_config(void)
 void user_rf_pre_init() {
   user_set_softap_config();
 }
+

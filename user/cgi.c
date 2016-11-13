@@ -44,7 +44,7 @@ int ICACHE_FLASH_ATTR cgiCurrentState(HttpdConnData *connData) {
     struct tm startTime;
     time_tToStructTm( flashConfig.schedule[0].startTime, &startTime );
     struct tm stopTime;
-    time_tToStructTm( flashConfig.schedule[0].startTime, &stopTime );
+    time_tToStructTm( flashConfig.schedule[0].stopTime, &stopTime );
 
     char battVb[20];
     getBattVoltageAsString(battVb);
@@ -117,6 +117,7 @@ int ICACHE_FLASH_ATTR cgiSetTime(HttpdConnData *connData) {
   }
 
   httpdRedirect(connData, "index.tpl");
+  os_printf("configSave\n");
 
   configSave();
   configToString();

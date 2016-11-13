@@ -26,6 +26,7 @@ typedef union {
 
 bool ICACHE_FLASH_ATTR configSave(void) {
   flashConfig.seq += 1;
+  //SconfigToString();
   if( system_param_save_with_protect(ESP_PARAM_START_SEC, &flashConfig, sizeof(flashConfig)) )
     return true;
 
@@ -34,6 +35,7 @@ bool ICACHE_FLASH_ATTR configSave(void) {
 }
 
 bool ICACHE_FLASH_ATTR configRestore(void) {
+  os_printf("Load config...\n");
   if( system_param_load(ESP_PARAM_START_SEC, 0, &flashConfig, sizeof(flashConfig)) &&
      (flashConfig.magic == FLASH_MAGIC) )
     return true;
@@ -43,7 +45,7 @@ bool ICACHE_FLASH_ATTR configRestore(void) {
 }
 
 bool ICACHE_FLASH_ATTR configDefault(void) {
-    ScheduleEntry schedEntry = {1, 0, khz3555, STANDARD5_1MINSEND4MINPAUSE };
+    ScheduleEntry schedEntry = {3600, 7200, khz3555, STANDARD5_1MINSEND4MINPAUSE };
 
     FlashConfig flashDefault = {
       .seq = 33, .magic = FLASH_MAGIC, .crc = 0,
@@ -65,16 +67,31 @@ bool ICACHE_FLASH_ATTR configDefault(void) {
   return false;
 }
 
-void ICACHE_FLASH_ATTR configToString(void) {
-  os_printf("seq: %u, magic: %u, crc: %u\n", flashConfig.seq, flashConfig.magic, flashConfig.crc);
-  os_printf("baud: %d, bits: %c, parity: %c\n", flashConfig.baud_rate, flashConfig.data_bits, flashConfig.parity);
-  os_printf("foxNo: %c, noFoxes: %c, send: %d, pause: %d\n", flashConfig.foxNo, flashConfig.noOfFoxes, flashConfig.sendSec, flashConfig.pauseSec);
-  char bufStart[20];
-  ScheduleEntry* sched = &flashConfig.schedule[0];
-
+void ICACHE_FLASH_ATTR printScheduleEntry(ScheduleEntry* sched)
+{
+  char bufStart[10];
   time_tToString(sched->startTime, bufStart);
-  char bufStop[20];
+  char bufStop[10];
   time_tToString(sched->stopTime, bufStop);
-  os_printf("1. start: %s, stop: %s, freq: %d, mode: %d\n", bufStart, bufStop,
-          flashConfig.schedule[0].frequency, flashConfig.schedule[0].workingMode);
+  os_printf("start: %s (%d), stop: %s (%d), freqEnum: %d, modeEnum: %d\n",
+            bufStart, (int)sched->startTime, bufStop, (int)sched->stopTime, sched->frequency, sched->workingMode);
 }
+
+void ICACHE_FLASH_ATTR configToString(void)
+{
+  int magic = flashConfig.magic;
+  int crc = flashConfig.crc;
+  int dataBits = flashConfig.data_bits;
+  int foxNo = flashConfig.foxNo;
+  int noOfFoxes = flashConfig.noOfFoxes;
+
+  os_printf("\n---- flash configuration -----\n" );
+  os_printf("seq: %u, magic: %x, crc: %x\n", flashConfig.seq, magic, crc);
+  os_printf("baud: %d, bits: %d, parity: %d\n", flashConfig.baud_rate, dataBits, flashConfig.parity);
+  os_printf("foxNo: %d, noFoxes: %d, send: %d, pause: %d\n", foxNo, noOfFoxes, flashConfig.sendSec, flashConfig.pauseSec);
+
+  ScheduleEntry* sched = &flashConfig.schedule[0];
+  printScheduleEntry( sched );
+  os_printf("---- End flash configuration -----\n" );
+}
+

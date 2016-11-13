@@ -24,29 +24,30 @@ static bool checkIfTmIsValid(struct tm* tmBuf);
 static void everySecond();
 
 
-void now( struct tm* tmObj )
+void ICACHE_FLASH_ATTR now( struct tm* tmObj )
 {
   os_memcpy( tmObj, &clockTime, sizeof(clockTime) );
 }
 
-void setTime(struct tm* newTime)
+void ICACHE_FLASH_ATTR setTime(struct tm* newTime)
 {
   os_memcpy( &clockTime, newTime, sizeof(clockTime));
 }
 
 // Timer routine is called every 100ms
-static void ICACHE_FLASH_ATTR clockTimerCb() 
+static void clockTimerCb()
 {
   static int div10 = 10;
-  
-  if(--div10 == 0)
+
+  --div10;
+  if(div10 == 0)
   {
     everySecond();
     div10 = 10;
   }
 }
 
-static void ICACHE_FLASH_ATTR everySecond() 
+static void everySecond()
 {
   if(++clockTime.tm_sec >= 60)
   {
@@ -83,6 +84,7 @@ void ICACHE_FLASH_ATTR initClockTimer()
   hw_timer_init(FRC1_SOURCE,1);
   hw_timer_set_func(clockTimerCb);
   hw_timer_arm(100000);
+  clockTimerCb();
 }
 
 int ICACHE_FLASH_ATTR atoint( char** pStr)
@@ -107,7 +109,7 @@ bool ICACHE_FLASH_ATTR strToStructTm(char* str, struct tm* tmBuf)
   char *p;
   if (str==NULL) return false;
   if (tmBuf==NULL) return false;
-  os_memset(&tmBuf, 0, sizeof(tmBuf));
+  os_memset(tmBuf, 0, sizeof(struct tm));
 
   p=str;
   tmBuf->tm_hour = atoint( &p );
@@ -135,21 +137,22 @@ time_t ICACHE_FLASH_ATTR strToTime_t(char* str)
   return t;
 }
 
-bool ICACHE_FLASH_ATTR time_tToStructTm(time_t tt, struct tm* tmBuf)
+void ICACHE_FLASH_ATTR time_tToStructTm(time_t tt, struct tm* tmBuf)
 {
-  if (tmBuf==NULL) return false;
-  os_memset(&tmBuf, 0, sizeof(tmBuf));
-  tmBuf->tm_hour = tt / 3600;
+  if (tmBuf==NULL) return;
+  os_memset(tmBuf, 0, sizeof(struct tm));
+  tmBuf->tm_mday = tt / 86400;
+  tmBuf->tm_hour = (tt%86400) / 3600;
   tmBuf->tm_min  = (tt%3600) / 60;
   tmBuf->tm_sec  = (tt%3600)%60;
-  return true;
+  return;
 }
 
 void ICACHE_FLASH_ATTR time_tToString(time_t tt, char* buf)
 {
   struct tm tmS;
   time_tToStructTm( tt, &tmS );
-  os_sprintf(buf, "%02d %02d:%02d:%02d",
+  os_sprintf(buf, "%d %02d:%02d:%02d",
              tmS.tm_mday, tmS.tm_hour, tmS.tm_min, tmS.tm_sec);
 }
 

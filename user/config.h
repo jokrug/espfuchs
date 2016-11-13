@@ -8,7 +8,7 @@
 
 /* NOTICE---this is for 512KB spi flash.
  * you can change to other sector if you use other size spi flash. */
-#define ESP_PARAM_START_SEC		0x3D
+#define ESP_PARAM_START_SEC		0x3A
 #define SCHEDULE_ENTRIES        4
 
 enum WorkingMode {
@@ -43,8 +43,8 @@ typedef struct {
 
   //setting for user-defined  mode
   int8   noOfFoxes;
-  int32   sendSec;
-  int32   pauseSec;
+  int32  sendSec;
+  int32  pauseSec;
 
 } FlashConfig;
 
