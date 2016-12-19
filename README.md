@@ -32,6 +32,7 @@ With different pre-divider settings, this frequencies can also be generated:
 As the ESP generates square waves, the spectrum shuld contain the fundamental and every third harmonic,
 but the square waves are not perfect and therefore the real spectrum shows more harmonics:
 
+![spectrum3556khz](https://github.com/jokrug/espfuchs/blob/master/doc/Spectrum3556KHz.png)
 
 ## Mixing frequencies
 According to http://www.ardf-r1.org/files/Rules_V2.11B_2013.pdf you need four frequencies between
