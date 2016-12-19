@@ -53,6 +53,7 @@ In the calculation loop the bit streams for both frequencies are generated and m
 This method actually works and generates the desired frequencies, but it also generates a lot of harmonics.
 Also the level of the two mixed fundamentals is higher than the level of the desired frequency.
 
+https://github.com/jokrug/espfuchs/blob/master/doc/Spectrum3431WideKHz.png
 
 Even if the demands for a low power fox signal with a relatively short range are not so high, I'm not yet sure, 
 if I can filter out the harmonics with reasonable efforts.
