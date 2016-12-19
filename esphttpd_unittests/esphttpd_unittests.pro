@@ -7,5 +7,19 @@ SOURCES += main.c \
 
 HEADERS += \
 
+
 INCLUDEPATH += \
+    ../include \
+    ../libesphttpd/include \
     .
+
+DISTFILES += \
+    ../* \
+    ../driver/* \
+    ../html/* \
+    ../libesphttpd/* \
+    ../user/* \
+
+
+
+

@@ -91,7 +91,7 @@ void user_init(void) {
   print_reset_info();
 
   configRestore();
-  configToString();
+  printCconfig();
 
   ioInit();
   captdnsInit();

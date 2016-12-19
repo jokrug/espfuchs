@@ -12,7 +12,6 @@
 
 #include <esp8266.h>
 #include "httpd.h"
-#include "io.h"
 #include "httpdespfs.h"
 #include "cgi.h"
 #include "cgiwifi.h"
@@ -23,7 +22,6 @@
 #include "captdns.h"
 #include "webpages-espfs.h"
 #include "cgiwebsocket.h"
-#include "cgi-test.h"
 #include "webserver.h"
 
 //static ETSTimer websockTimer;
@@ -42,7 +40,8 @@ should be placed above the URLs they protect.
 HttpdBuiltInUrl builtInUrls[]={
   {"*", cgiRedirectApClientToHostname, "espfuchs.wlan"},
   {"/", cgiRedirect, "/index.tpl"},
-  {"/index.tpl", cgiEspFsTemplate, tplCounter},
+  {"/index.tpl", cgiEspFsTemplate, tplInfo},
+  {"/foxhunt.html", cgiEspFsTemplate, tplFoxhunt},
   {"/settime", cgiSetTime, NULL},
    
   {"/xml", cgiCurrentState, NULL},

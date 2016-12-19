@@ -77,7 +77,7 @@ void ICACHE_FLASH_ATTR printScheduleEntry(ScheduleEntry* sched)
             bufStart, (int)sched->startTime, bufStop, (int)sched->stopTime, sched->frequency, sched->workingMode);
 }
 
-void ICACHE_FLASH_ATTR configToString(void)
+void ICACHE_FLASH_ATTR printCconfig(void)
 {
   int magic = flashConfig.magic;
   int crc = flashConfig.crc;
@@ -95,3 +95,23 @@ void ICACHE_FLASH_ATTR configToString(void)
   os_printf("---- End flash configuration -----\n" );
 }
 
+void ICACHE_FLASH_ATTR foxModeToStr(enum WorkingMode mode, char* buf)
+{
+    switch(mode)
+    {
+      case STANDARD5_1MINSEND4MINPAUSE:
+        os_sprintf(buf, "Standard5");
+        break;
+      case SPRINT2X5_12SECSEND48SECPAUSE:
+        os_sprintf(buf, "Sprint2x5");
+        break;
+      case FOXORING_CONTINOUS:
+        os_sprintf(buf, "Foxoring");
+        break;
+      case USER_DEFINED:
+        os_sprintf(buf, "User defined");
+        break;
+      default:
+        break;
+    }
+}

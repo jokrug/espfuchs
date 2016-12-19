@@ -50,6 +50,7 @@ Extra copyright info:
 #define ICACHE_FLASH_ATTR
 #define os_memset memset
 #define os_printf printf
+#define os_sprintf sprintf
 
 //Bit clock @ 40MHz = 25ns
 //WS_I2S_DIV - if 1 will actually be 2.  Can't be less than 2.
@@ -188,13 +189,20 @@ time_t ICACHE_FLASH_ATTR strToTime_t(char* str)
 bool ICACHE_FLASH_ATTR time_tToStructTm(time_t tt, struct tm* tmBuf)
 {
   if (tmBuf==NULL) return false;
-
+  tmBuf->tm_mday = tt / 86400;
   tmBuf->tm_hour = tt / 3600;
   tmBuf->tm_min  = (tt%3600) / 60;
   tmBuf->tm_sec  = (tt%3600)%60;
   return true;
 }
 
+void ICACHE_FLASH_ATTR time_tToString(time_t tt, char* buf)
+{
+  struct tm tmS;
+  time_tToStructTm( tt, &tmS );
+  os_sprintf(buf, "%d %02d:%02d:%02d",
+             tmS.tm_mday, tmS.tm_hour, tmS.tm_min, tmS.tm_sec);
+}
 
 int main(int argc, char *argv[])
 {
@@ -203,10 +211,13 @@ int main(int argc, char *argv[])
     char* str = "22:15T50";
     int i = atoint( &str );
     struct tm zeit;
+
     bool ret = strToStructTm("22:15:56", &zeit);
     time_t tmet = strToTime_t("22:15:56");
     memset( &zeit, 0, sizeof(zeit));
     time_tToStructTm(tmet,  &zeit);
+    char strBuf[100];
+    time_tToString(tmet, strBuf);
 
     return 0;
 }

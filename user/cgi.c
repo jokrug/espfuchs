@@ -20,47 +20,32 @@ flash as a binary. Also handles the hit counter on the main page.
 //Cgi 
 int ICACHE_FLASH_ATTR cgiCurrentState(HttpdConnData *connData) {
   char buff[1024];
-  int len = 1;
-  
+
   if (connData->conn==NULL) {
     //Connection aborted. Clean up.
     return HTTPD_CGI_DONE;
   }  
   
-  //len=httpdFindArg(connData->post->buff, "currenttime", buff, sizeof(buff));
-  if (len!=0) {
+  //Generate the header
+  //We want the header to start with HTTP code 200, which means the document is found.
+  httpdStartResponse(connData, 200);
+  //We are going to send some HTML.
+  httpdHeader(connData, "Content-Type", "text/xml");
+  //No more headers.
+  httpdEndHeaders(connData);
 
-    //Generate the header
-    //We want the header to start with HTTP code 200, which means the document is found.
-    httpdStartResponse(connData, 200); 
-    //We are going to send some HTML.
-    httpdHeader(connData, "Content-Type", "text/xml");
-    //No more headers.
-    httpdEndHeaders(connData);
-
-
-    struct tm nowTime;
-    now( &nowTime );
-    struct tm startTime;
-    time_tToStructTm( flashConfig.schedule[0].startTime, &startTime );
-    struct tm stopTime;
-    time_tToStructTm( flashConfig.schedule[0].stopTime, &stopTime );
-
-    char battVb[20];
-    getBattVoltageAsString(battVb);
-    os_sprintf(buff, "<?xml version='1.0'?>"
-                     "<esp_state>"
-                       "<curtime>%02d %02d:%02d:%02d</curtime>"
-                       "<starttime>%02d %02d:%02d:%02d</starttime>"
-                       "<stoptime>%02d %02d:%02d:%02d</stoptime>"
-                       "<battvb>%s</battvb>"
-                     "</esp_state>", 
-               nowTime.tm_mday, nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec,
-               startTime.tm_mday, startTime.tm_hour, startTime.tm_min, startTime.tm_sec,
-               stopTime.tm_mday, stopTime.tm_hour, stopTime.tm_min, stopTime.tm_sec,
-               battVb );
-    os_printf(buff);
-  }
+  struct tm nowTime;
+  now( &nowTime );
+  char battVb[20];
+  getBattVoltageAsString(battVb);
+  os_sprintf(buff, "<?xml version='1.0'?>"
+                   "<esp_state>"
+                     "<curtime>%02d %02d:%02d:%02d</curtime>"
+                     "<battvb>%s</battvb>"
+                   "</esp_state>",
+             nowTime.tm_mday, nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec,
+             battVb );
+  os_printf(buff);
 
   httpdSend(connData, buff, -1);
   return HTTPD_CGI_DONE;
@@ -68,7 +53,8 @@ int ICACHE_FLASH_ATTR cgiCurrentState(HttpdConnData *connData) {
 
 
 //cgi to set the current time
-int ICACHE_FLASH_ATTR cgiSetTime(HttpdConnData *connData) {
+int ICACHE_FLASH_ATTR cgiSetTime(HttpdConnData *connData)
+{
   char stringBuf[64];
 
   if (connData->conn==NULL)
@@ -120,34 +106,54 @@ int ICACHE_FLASH_ATTR cgiSetTime(HttpdConnData *connData) {
   os_printf("configSave\n");
 
   configSave();
-  configToString();
+  printCconfig();
 
   return HTTPD_CGI_DONE;
 }
 
-
-static long hitCounter=0;
-
-//Template code for the counter on the index page.
-int ICACHE_FLASH_ATTR tplCounter(HttpdConnData *connData, char *token, void **arg)
+//Template code for the index page.
+int ICACHE_FLASH_ATTR tplInfo(HttpdConnData *connData, char *token, void **arg)
 {
-    char buff[128];
-    if (token==NULL) return HTTPD_CGI_DONE;
+  char buff[128];
+  if (token==NULL) return HTTPD_CGI_DONE;
 
-    if (os_strcmp(token, "counter")==0)
-    {
-        hitCounter++;
-        os_sprintf(buff, "%ld", hitCounter);
-        httpdSend(connData, buff, -1);
-
-    } else if (os_strcmp(token, "deviceNo")==0)
-    {
-        os_sprintf(buff, "%d", flashConfig.foxNo);
-        httpdSend(connData, buff, -1);
-    }
-    return HTTPD_CGI_DONE;
+  if (os_strcmp(token, "freq")==0)
+  {
+      frequencyEnumToString(flashConfig.schedule[0].frequency, buff);
+      httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "foxno")==0)
+  {
+      os_sprintf(buff, "%d", flashConfig.foxNo);
+      httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "foxmode")==0)
+  {
+      foxModeToStr( flashConfig.schedule[0].workingMode, buff );
+      httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "starttime")==0)
+  {
+      time_tToString( flashConfig.schedule[0].startTime, buff );
+      httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "stoptime")==0)
+  {
+      time_tToString( flashConfig.schedule[0].stopTime, buff );
+      httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "frequencyselectoptions")==0)
+  {
+    httpdSend(connData, frequencySelectOptions, -1);
+  }
+  return HTTPD_CGI_DONE;
 }
 
+int ICACHE_FLASH_ATTR tplFoxhunt(HttpdConnData *connData, char *token, void **arg)
+{
+  if (token==NULL) return HTTPD_CGI_DONE;
+
+  if (os_strcmp(token, "frequencyselectoptions")==0)
+  {
+    httpdSend(connData, frequencySelectOptions, -1);
+  }
+  return HTTPD_CGI_DONE;
+}
 
 void getBattVoltageAsString(char* buff)
 {

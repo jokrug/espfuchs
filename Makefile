@@ -8,8 +8,8 @@ OUTPUT_TYPE=separate
 #OUTPUT_TYPE=ota
 VERBOSE=1
 
-#SPI flash size, in K
-ESP_SPI_FLASH_SIZE_K=1024
+#SPI flash size, in K 1024, 
+ESP_SPI_FLASH_SIZE_K=4096
 #0: QIO, 1: QOUT, 2: DIO, 3: DOUT
 ESP_FLASH_MODE=0
 #0: 40MHz, 1: 26MHz, 2: 20MHz, 0xf: 80MHz

@@ -53,6 +53,7 @@ extern FlashConfig flashConfig;
 bool configSave(void);
 bool configRestore(void);
 bool configDefault(void);
-void configToString(void);
+void printCconfig(void);
+void foxModeToStr(enum WorkingMode mode, char* buf);
 
 #endif
