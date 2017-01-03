@@ -45,7 +45,6 @@ int ICACHE_FLASH_ATTR cgiCurrentState(HttpdConnData *connData) {
                    "</esp_state>",
              nowTime.tm_mday, nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec,
              battVb );
-  os_printf(buff);
 
   httpdSend(connData, buff, -1);
   return HTTPD_CGI_DONE;
@@ -53,9 +52,10 @@ int ICACHE_FLASH_ATTR cgiCurrentState(HttpdConnData *connData) {
 
 
 //cgi to set the current time
-int ICACHE_FLASH_ATTR cgiSetTime(HttpdConnData *connData)
+int ICACHE_FLASH_ATTR cgiSetFoxParams(HttpdConnData *connData)
 {
   char stringBuf[64];
+  ScheduleEntry* schedEntry = &flashConfig.schedule[0];
 
   if (connData->conn==NULL)
   {    //Connection aborted. Clean up.
@@ -79,7 +79,7 @@ int ICACHE_FLASH_ATTR cgiSetTime(HttpdConnData *connData)
   {
     os_printf("Neue Startzeit: %s\n", stringBuf);
     time_t newTime = strToTime_t( stringBuf );
-    flashConfig.schedule[0].startTime = newTime;
+    schedEntry->startTime = newTime;
   }
 
   bytes = httpdFindArg(connData->getArgs, "setstoptime", stringBuf, sizeof(stringBuf));
@@ -88,22 +88,58 @@ int ICACHE_FLASH_ATTR cgiSetTime(HttpdConnData *connData)
   {
     os_printf("Neue Stopzeit: %s\n", stringBuf);
     time_t newTime = strToTime_t( stringBuf );
-    flashConfig.schedule[0].stopTime = newTime;
+    schedEntry->stopTime = newTime;
   }
 
   bytes = httpdFindArg(connData->getArgs, "frequency_enum", stringBuf, sizeof(stringBuf));
   os_printf("cgifrequency_enum Bytes: %d\n", bytes);
   if( bytes > 0 )
   {
-    char* sBuf = stringBuf;
-    int enumFrq = atoint( &sBuf );
-    os_printf("Neue Frequenz: %s, dezimal: %d\n", stringBuf, enumFrq);
-    initI2S(enumFrq);
-    flashConfig.schedule[0].frequency = enumFrq;
+    int enumFrq = atoi( stringBuf );
+    if(enumFrq > 0)
+    {
+      os_printf("new frequency: %s, dezimal: %d\n", stringBuf, enumFrq);
+      setFrequency(enumFrq);
+      schedEntry->frequency = enumFrq;
+    }
   }
 
-  httpdRedirect(connData, "index.tpl");
-  os_printf("configSave\n");
+  bytes = httpdFindArg(connData->getArgs, "settransmittime", stringBuf, sizeof(stringBuf));
+  os_printf("settransmittime Bytes: %d\n", bytes);
+  if( bytes > 0 )
+  {
+    os_printf("new transmit time: %s\n", stringBuf);
+    int newTime = atoi( stringBuf );
+    schedEntry->transmitSec = newTime;
+  }
+
+  bytes = httpdFindArg(connData->getArgs, "setpausetime", stringBuf, sizeof(stringBuf));
+  os_printf("setpausetime Bytes: %d\n", bytes);
+  if( bytes > 0 )
+  {
+    os_printf("new pause time: %s\n", stringBuf);
+    int newTime = atoi( stringBuf );
+    schedEntry->pauseSec = newTime;
+  }
+
+  bytes = httpdFindArg(connData->getArgs, "setmorsespeed", stringBuf, sizeof(stringBuf));
+  os_printf("setmorsespeed Bytes: %d\n", bytes);
+  if( bytes > 0 )
+  {
+    os_printf("new morse speed: %s\n", stringBuf);
+    int newMorseSpeed = atoi( stringBuf );
+    schedEntry->morseSpeed = newMorseSpeed;
+  }
+
+  bytes = httpdFindArg(connData->getArgs, "setcall", stringBuf, sizeof(stringBuf));
+  os_printf("setcall Bytes: %d\n", bytes);
+  if( bytes > 0 )
+  {
+    os_printf("new call: %s\n", stringBuf);
+    os_sprintf(schedEntry->morseCall, stringBuf);
+  }
+
+  httpdRedirect(connData, (char*)connData->cgiArg);
 
   configSave();
   printCconfig();
@@ -125,10 +161,10 @@ int ICACHE_FLASH_ATTR tplInfo(HttpdConnData *connData, char *token, void **arg)
   {
       os_sprintf(buff, "%d", flashConfig.foxNo);
       httpdSend(connData, buff, -1);
-  } else if (os_strcmp(token, "foxmode")==0)
-  {
-      foxModeToStr( flashConfig.schedule[0].workingMode, buff );
-      httpdSend(connData, buff, -1);
+//  } else if (os_strcmp(token, "foxmode")==0)
+//  {
+//      foxModeToStr( flashConfig.schedule[0].workingMode, buff );
+//      httpdSend(connData, buff, -1);
   } else if (os_strcmp(token, "starttime")==0)
   {
       time_tToString( flashConfig.schedule[0].startTime, buff );
@@ -137,6 +173,22 @@ int ICACHE_FLASH_ATTR tplInfo(HttpdConnData *connData, char *token, void **arg)
   {
       time_tToString( flashConfig.schedule[0].stopTime, buff );
       httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "transmittime")==0)
+  {
+    os_sprintf(buff, "%d", flashConfig.schedule[0].transmitSec);
+    httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "pausetime")==0)
+  {
+    os_sprintf(buff, "%d", flashConfig.schedule[0].pauseSec);
+    httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "morsespeed")==0)
+  {
+    os_sprintf(buff, "%d", flashConfig.schedule[0].morseSpeed);
+    httpdSend(connData, buff, -1);
+  } else if (os_strcmp(token, "call")==0)
+  {
+    os_sprintf(buff, "%s", flashConfig.schedule[0].morseCall);
+    httpdSend(connData, buff, -1);
   } else if (os_strcmp(token, "frequencyselectoptions")==0)
   {
     httpdSend(connData, frequencySelectOptions, -1);

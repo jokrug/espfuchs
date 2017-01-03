@@ -63,24 +63,10 @@
 </table>
 <hr>
 
-<form action="/settime">
+<form action="/definefox">
   <table>
 <tr><td><label>neue Frequenz:</label></td> <td>
-    <select name="frequency_enum">
-      <option value="1">3478</option>
-      <option value="2">3555</option>
-      <option value="3">3636</option>
-      <option value="4">3400</option>
-      <option value="5">3431</option>
-      <option value="6">3462</option>
-      <option value="7">3491</option>
-      <option value="8">3519</option>
-      <option value="9">3545</option>
-      <option value="10">3571</option>
-      <option value="11">3597</option>
-      <option value="12">3621</option>
-      <option value="13">3644</option>
-    </select> kHz</td> </tr>
+    <select name="frequency_enum">%frequencyselectoptions%</select> kHz</td> </tr>
     <tr><td><label>neue Uhrzeit:</label></td> <td> <input type="time" name="setcurrtime"></td> </tr>
     <tr><td><label>neue Startzeit:</label></td> <td> <input type="time" name="setstarttime"></td> </tr>
     <tr><td><label>neue Stopzeit:</label></td> <td> <input type="time" name="setstoptime"></td> </tr>

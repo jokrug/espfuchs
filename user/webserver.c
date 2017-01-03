@@ -40,11 +40,13 @@ should be placed above the URLs they protect.
 HttpdBuiltInUrl builtInUrls[]={
   {"*", cgiRedirectApClientToHostname, "espfuchs.wlan"},
   {"/", cgiRedirect, "/index.tpl"},
-  {"/index.tpl", cgiEspFsTemplate, tplInfo},
-  {"/foxhunt.html", cgiEspFsTemplate, tplFoxhunt},
-  {"/settime", cgiSetTime, NULL},
-   
-  {"/xml", cgiCurrentState, NULL},
+
+  {"/index.tpl",      cgiEspFsTemplate, tplInfo},
+  {"/foxhunt.html",   cgiEspFsTemplate, tplFoxhunt},
+  {"/testfuncs.html", cgiEspFsTemplate, tplInfo},
+
+  {"/definefox", cgiSetFoxParams, "/testfuncs.html"},
+  {"/xml",       cgiCurrentState, NULL},
 
   {"*", cgiEspFsHook, NULL}, //Catch-all cgi function for the filesystem
   {NULL, NULL, NULL}

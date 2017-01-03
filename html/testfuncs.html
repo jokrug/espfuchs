@@ -52,39 +52,26 @@
     <td><a href="settings.html" style="display:block;margin:0px;">Einstellung</a></td>
 </table>
 <hr>
-<h2>Testfunktionen</h2>
 <table>
 <tr><td>Frequenz:        </td> <td><b>%freq%</b> KHz</td> </tr>
-<tr><td>Modus:           </td> <td><b>%foxmode%</b></td> </tr>
 <tr><td>Startzeit:       </td> <td><b>%starttime%</b></td> </tr>
 <tr><td>Stopzeit:        </td> <td><b>%stoptime%</b></td> </tr>
 <br/>
 <tr><td>Aktuelle Uhrzeit:</td> <td><b id="curtime"></b></td> </tr>
-<tr><td>Batteriespannung:</td> <td><b id="battvb"></b> V</td> </tr>
 </table>
 <hr>
 
-<form action="/settime">
+<form action="/definefox">
   <table>
-<tr><td><label>neue Frequenz:</label></td> <td>
-    <select name="frequency_enum">
-      <option value="1">3478</option>
-      <option value="2">3555</option>
-      <option value="3">3636</option>
-      <option value="4">3400</option>
-      <option value="5">3431</option>
-      <option value="6">3462</option>
-      <option value="7">3491</option>
-      <option value="8">3519</option>
-      <option value="9">3545</option>
-      <option value="10">3571</option>
-      <option value="11">3597</option>
-      <option value="12">3621</option>
-      <option value="13">3644</option>
-    </select> kHz</td> </tr>
-    <tr><td><label>neue Uhrzeit:</label></td> <td> <input type="time" name="setcurrtime"></td> </tr>
-    <tr><td><label>neue Startzeit:</label></td> <td> <input type="time" name="setstarttime"></td> </tr>
-    <tr><td><label>neue Stopzeit:</label></td> <td> <input type="time" name="setstoptime"></td> </tr>
+    <tr><td><label>Frequenz:</label></td> <td>
+      <select name="frequency_enum" value="%freq%">%frequencyselectoptions%</select> kHz</td> </tr>
+    <tr><td><label>Uhrzeit:</label></td> <td> <input type="time" name="setcurrtime"></td> </tr>
+    <tr><td><label>Startzeit:</label></td> <td> <input type="time" name="setstarttime"></td> </tr>
+    <tr><td><label>Stopzeit:</label></td> <td> <input type="time" name="setstoptime"></td> </tr>
+    <tr><td><label>Sendezeit:</label></td> <td> <input type="number" min="0" max="9999" step="1" value="%transmittime%" name="settransmittime"></td> </tr>
+    <tr><td><label>Pausezeit:</label></td> <td> <input type="number" min="0" max="9999" step="1" value="%pausetime%" name="setpausetime"></td> </tr>
+    <tr><td><label>Morse-Speed:</label></td> <td> <input type="number" min="1" max="300" step="1" value="%morsespeed%" name="setmorsespeed"></td> </tr>
+    <tr><td><label>Call:</label></td> <td> <input type="text" value="%call%" name="setcall"></td> </tr>
   </table>
   <button type="submit" height=12px name="submit">Daten &uuml;bernehmen</button>
 </form>

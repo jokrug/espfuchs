@@ -41,7 +41,7 @@ Extra copyright info:
 #include <c_types.h>
 #include "pin_mux_register.h"
 #include "dmastuff.h"
-#include "io.h"
+//#include "io.h"
 
 #define I2SDMABUFLEN (100)		//Length of one buffer, in 32-bit words.
 
@@ -66,6 +66,9 @@ static int bitFieldSize = 0;
 static int dataLen = 0;
 static int kgv = 0;
 
+static void initI2S();
+
+// Set parameter for a frequency and init the I2S system.
 void ICACHE_FLASH_ATTR setFrequency(enum Frequencies freq)
 {
   switch(freq)
@@ -149,7 +152,25 @@ void ICACHE_FLASH_ATTR setFrequency(enum Frequencies freq)
       freq2Bits = 59;
       break;
   }
+  initI2S();
 }
+
+const char* frequencySelectOptions =
+"<option value=\"0\"></option>"
+"<option value=\"1\">3478</option>"
+"<option value=\"2\">3555</option>"
+"<option value=\"3\">3636</option>"
+"<option value=\"4\">3400</option>"
+"<option value=\"5\">3431</option>"
+"<option value=\"6\">3462</option>"
+"<option value=\"7\">3491</option>"
+"<option value=\"8\">3519</option>"
+"<option value=\"9\">3545</option>"
+"<option value=\"10\">3571</option>"
+"<option value=\"11\">3597</option>"
+"<option value=\"12\">3621</option>"
+"<option value=\"13\">3644</option>"
+;
 
 void ICACHE_FLASH_ATTR frequencyEnumToString(enum Frequencies freq, char* buf)
 {
@@ -197,17 +218,17 @@ void ICACHE_FLASH_ATTR frequencyEnumToString(enum Frequencies freq, char* buf)
   }
 }
 
-int ICACHE_FLASH_ATTR ggt(int m, int n)
+int ICACHE_FLASH_ATTR calcGgt(int m, int n)
 {
     if (n==0)
         return m;
     else
-        return ggt(n, m%n);
+        return calcGgt(n, m%n);
 }
 
 int ICACHE_FLASH_ATTR calcKgv(int m, int n)
 {
-    int o = ggt(m,n);
+    int o = calcGgt(m,n);
     int p = (m * n) / o;
     return p;
 }
@@ -221,6 +242,12 @@ int ICACHE_FLASH_ATTR setBitPattern()
 
   if(freq2Bits > 0)
     kgv = calcKgv( freq2Bits, kgv );
+
+  if(kgv > (I2SDMABUFLEN*32))
+  {
+    os_printf("Bit field too small. Kgv: %d\n", kgv);
+    return 0;
+  }
 
   for(int i1 = 0; i1<kgv; i1++ )
   {
@@ -275,9 +302,8 @@ void ICACHE_FLASH_ATTR printBitField()
 }
 
 //Initialize I2S subsystem for DMA circular buffer use
-void ICACHE_FLASH_ATTR initI2S(enum Frequencies freq)
+void ICACHE_FLASH_ATTR initI2S()
 {
-    setFrequency(freq);
     bitFieldSize = setBitPattern();
     dataLen = (bitFieldSize >> 3); // dataLen (bytes) = bitFieldSize / 8
 
@@ -370,9 +396,13 @@ void ICACHE_FLASH_ATTR initI2S(enum Frequencies freq)
     //enable int
     //SET_PERI_REG_MASK(I2SINT_ENA,   I2S_I2S_TX_REMPTY_INT_ENA|I2S_I2S_TX_WFULL_INT_ENA|
     //I2S_I2S_RX_REMPTY_INT_ENA|I2S_I2S_TX_PUT_DATA_INT_ENA|I2S_I2S_RX_TAKE_DATA_INT_ENA);
-
-    //Start transmission
-    SET_PERI_REG_MASK(I2SCONF,I2S_I2S_TX_START);
 }
 
+void ICACHE_FLASH_ATTR transmit(bool start)
+{
+  if(start)
+    SET_PERI_REG_MASK(I2SCONF,I2S_I2S_TX_START); //Start transmission
+  else
+    CLEAR_PERI_REG_MASK(I2SCONF,I2S_I2S_TX_START);
+}
 

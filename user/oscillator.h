@@ -14,25 +14,12 @@ enum Frequencies {
     khz3571,
     khz3597,
     khz3621,
-    khz3644
+    khz3644,
+
 };
 
-const char* frequencySelectOptions =
-"  <option value=\"1\">3478</option>"
-"  <option value=\"2\">3555</option>"
-"  <option value=\"3\">3636</option>"
-"  <option value=\"4\">3400</option>"
-"  <option value=\"5\">3431</option>"
-"  <option value=\"6\">3462</option>"
-"  <option value=\"7\">3491</option>"
-"  <option value=\"8\">3519</option>"
-"  <option value=\"9\">3545</option>"
-"  <option value=\"10\">3571</option>"
-"  <option value=\"11\">3597</option>"
-"  <option value=\"12\">3621</option>"
-"  <option value=\"13\">3644</option>";
+extern const char* frequencySelectOptions;
 
-void initI2S(enum Frequencies freq);
 
 int setBitPattern();
 void printBitField();
@@ -40,5 +27,6 @@ void setBit(int bitNr, bool val);
 int  getBit(int bitNr);
 void setFrequency(enum Frequencies freq);
 void frequencyEnumToString(enum Frequencies freq, char* buf);
+void transmit(bool start);
 
 #endif

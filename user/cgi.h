@@ -7,5 +7,5 @@ int tplInfo(HttpdConnData *connData, char *token, void **arg);
 int tplFoxhunt(HttpdConnData *connData, char *token, void **arg);
 int cgiCurrentState(HttpdConnData *connData);
 void getBattVoltageAsString(char* buff);
-int cgiSetTime(HttpdConnData *connData);
+int cgiSetFoxParams(HttpdConnData *connData);
 #endif

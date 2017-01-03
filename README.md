@@ -39,7 +39,7 @@ According to http://www.ardf-r1.org/files/Rules_V2.11B_2013.pdf you need four fr
 3510kHz and 3600kHz for e.g. an ARDF sprint event, but only two of the directly generated frequencies
 fall in this range.
 
-This software tires to mix two frequencies to get the desired frequency.
+This software tries to mix two frequencies to get the desired frequency.
 The table https://github.com/jokrug/espfuchs/blob/master/FrequenzBerechnung.ods helps to find usefull values.
 It lists all values of 80 MHz devided by 2 down to 150. 
 I chose 5MHz (80/16) and mixed it with 

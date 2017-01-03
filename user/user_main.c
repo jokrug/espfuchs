@@ -15,7 +15,6 @@ some pictures of cats.
 
 #include <esp8266.h>
 #include "httpd.h"
-#include "io.h"
 #include "httpdespfs.h"
 #include "cgi.h"
 #include "config.h"
@@ -27,30 +26,30 @@ some pictures of cats.
 #include "captdns.h"
 #include "webpages-espfs.h"
 #include "cgiwebsocket.h"
-#include "cgi-test.h"
 #include "webserver.h"
 #include "clocktimer.h"
 #include "oscillator.h"
+#include "foxcontrol.h"
 
 //The example can print out the heap use every 3 seconds. You can use this to catch memory leaks.
-#define SHOW_HEAP_USE
+//#define SHOW_HEAP_USE
 
-
-#ifdef SHOW_HEAP_USE
-static ETSTimer prHeapTimer;
-static const char* espfuchs_version="v0.01";
 static char* rst_codes[7] = {
   "normal", "wdt reset", "exception", "soft wdt", "restart", "deep sleep", "external",
 };
+static const char* espfuchs_version="v0.01";
 
 static char* flash_maps[7] = {
   "512KB:256/256", "256KB", "1MB:512/512", "2MB:512/512", "4MB:512/512",
   "2MB:1024/1024", "4MB:1024/1024"
 };
 
+#ifdef SHOW_HEAP_USE
+static ETSTimer prHeapTimer;
+
 static void ICACHE_FLASH_ATTR prHeapTimerCb(void *arg) {
     os_printf("Heap: %ld\n", (unsigned long)system_get_free_heap_size());
-    //printBitField();
+    printBitField();
 }
 #endif
 
@@ -93,7 +92,6 @@ void user_init(void) {
   configRestore();
   printCconfig();
 
-  ioInit();
   captdnsInit();
 
 	// 0x40200000 is the base address for spi flash memory mapping, ESPFS_POS is the position
@@ -105,9 +103,8 @@ void user_init(void) {
 #endif
   
   initWebserver();
-  
   initClockTimer();
-  initI2S( khz3555 );
+  initFoxControl();
 
 #ifdef SHOW_HEAP_USE
 	os_timer_disarm(&prHeapTimer);

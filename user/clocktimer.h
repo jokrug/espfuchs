@@ -18,8 +18,10 @@ enum SystemClockStatus
 
 void initClockTimer();
 
+time_t time(time_t* t);
+
 /** @brief  Get the current date and time
-*  @param  timeType Time zone to use
+*  @param tmObj buffer
 *  @retval DateTime Current date and time
 */
 void now( struct tm* tmObj );

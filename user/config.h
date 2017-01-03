@@ -10,6 +10,7 @@
  * you can change to other sector if you use other size spi flash. */
 #define ESP_PARAM_START_SEC		0x3A
 #define SCHEDULE_ENTRIES        4
+#define MAX_CALL                20
 
 enum WorkingMode {
     STANDARD5_1MINSEND4MINPAUSE,
@@ -19,10 +20,13 @@ enum WorkingMode {
 };
 
 typedef struct {
-  time_t   startTime;
-  time_t   stopTime;
-  enum Frequencies frequency;
-  enum WorkingMode workingMode;
+  time_t            startTime;
+  time_t            stopTime;
+  enum Frequencies  frequency;
+  int               transmitSec;
+  int               pauseSec;
+  char              morseCall[MAX_CALL];
+  int               morseSpeed;
 } ScheduleEntry;
 
 // Flash configuration settings. When adding new items always add them at the end and formulate
@@ -49,7 +53,7 @@ typedef struct {
 } FlashConfig;
 
 extern FlashConfig flashConfig;
-
+void setScheduleEntry(int idx, ScheduleEntry* sched);
 bool configSave(void);
 bool configRestore(void);
 bool configDefault(void);
